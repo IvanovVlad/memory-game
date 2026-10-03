@@ -1,0 +1,28 @@
+{
+  "name": "rsschool-landing-page",
+  "version": "0.0.0",
+  "private": false,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "lint": "oxlint",
+    "lint:fix": "oxlint --fix",
+    "format": "oxfmt",
+    "prepare": "husky",
+    "validate-w3c": "w3c-html-validator docs --ignore=\"Trailing slash\""
+  },
+  "devDependencies": {
+    "husky": "^9.1.7",
+    "lint-staged": "^17.5.1",
+    "oxfmt": "^0.68.0",
+    "oxlint": "^1.83.0",
+    "vite": "^8.3.0",
+    "w3c-html-validator": "^2.2.3"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx,mjs,cjs}": "npm run lint:fix",
+    "*.{html,css}": "npm run format"
+  }
+}
