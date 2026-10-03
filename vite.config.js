@@ -2,7 +2,7 @@ import { defineConfig } from "vite";
 import { resolve } from "path";
 
 export default defineConfig({
-  base: "/memory-ga",
+  base: "/memory-game",
   build: {
     sourcemap: true,
     outDir: "docs",
