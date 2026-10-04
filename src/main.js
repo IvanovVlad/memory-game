@@ -105,7 +105,7 @@ const useScore = (maxScore) => {
   let score = 0;
 
   const updateScore = () => {
-    scoreContainer.innerText = `${score} / ${maxScore}`;
+    scoreContainer.textContent = `${score} / ${maxScore}`;
   };
 
   updateScore();
@@ -124,7 +124,7 @@ const useStepCounter = () => {
   let count = 0;
 
   const updateSteps = () => {
-    stepCounterContainer.innerText = count;
+    stepCounterContainer.textContent = count;
   };
 
   updateSteps();
@@ -160,57 +160,91 @@ const useScoreboard = (maxCount) => {
   };
 
   const hideModal = () => {
-    scoreboardModal.innerHTML = "";
+    scoreboardModal.replaceChildren();
   };
 
   const showModal = (yourScore, restart) => {
     const scores = obtain();
 
-    scoreboardModal.innerHTML = `
-    <div class="scoreboard-modal">
-        <div class="scoreboard-wrapper">
-          <div class="scoreboard-content">
-              <button class="scoreboard-x"></button>
-              <div>
-                  <div>
-                    <div>Таблица результатов</div>
-                    <div>
-                        ${
-                          scores.length
-                            ? `<table>
-                                  <thead>
-                                    <tr>
-                                      <th>Место</th>
-                                      <th>Счёт</th>
-                                      <th>Дата</th>
-                                    </tr>
-                                  </thead>
-                                  <tbody>
-                                  ${scores.map(
-                                  (s, i) => `
-                                    <tr>
-                                      <td>${i + 1}</td>
-                                      <td>${s.steps}</td>
-                                      <td>${s.date}</td>
-                                    </tr>`
-                                  ).join("\n")}
-                                  </tbody>
-                                </table>`
-                            : "Нет попыток"
-                        }
-                    </div>
-                  </div>
-                  <div>${yourScore === undefined ? "" : `Ваш счёт: ${yourScore}`}</div>
-              </div>
-              <div>
-                  ${yourScore === undefined ? "" : `<button class="scoreboard-restart">Новая игра</button>`}
-                  <button class="scoreboard-close">Закрыть</button>
-              </div>
-          </div>
-        </div>
-    </div>
-    `;
-    scoreboardModal.querySelector(".scoreboard-modal").addEventListener("mousedown", (e) => {
+    const modal = document.createElement("div");
+    modal.className = "scoreboard-modal";
+
+    const wrapper = document.createElement("div");
+    wrapper.className = "scoreboard-wrapper";
+    modal.appendChild(wrapper);
+
+    const content = document.createElement("div");
+    content.className = "scoreboard-content";
+    wrapper.appendChild(content);
+
+    const xButton = document.createElement("button");
+    xButton.className = "scoreboard-x";
+    content.appendChild(xButton);
+
+    const body = document.createElement("div");
+    content.appendChild(body);
+
+    const scoresBlock = document.createElement("div");
+    body.appendChild(scoresBlock);
+
+    const title = document.createElement("div");
+    title.textContent = "Таблица результатов";
+    scoresBlock.appendChild(title);
+
+    const scoresView = document.createElement("div");
+    scoresBlock.appendChild(scoresView);
+
+    if (scores.length) {
+      const table = document.createElement("table");
+      const thead = document.createElement("thead");
+      const headRow = document.createElement("tr");
+      for (const text of ["Место", "Счёт", "Дата"]) {
+        const th = document.createElement("th");
+        th.textContent = text;
+        headRow.appendChild(th);
+      }
+      thead.appendChild(headRow);
+      table.appendChild(thead);
+
+      const tbody = document.createElement("tbody");
+      scores.forEach((s, i) => {
+        const row = document.createElement("tr");
+        for (const text of [i + 1, s.steps, s.date]) {
+          const td = document.createElement("td");
+          td.textContent = text;
+          row.appendChild(td);
+        }
+        tbody.appendChild(row);
+      });
+      table.appendChild(tbody);
+      scoresView.appendChild(table);
+    } else {
+      scoresView.textContent = "Нет попыток";
+    }
+
+    const yourScoreView = document.createElement("div");
+    if (yourScore !== undefined) {
+      yourScoreView.textContent = `Ваш счёт: ${yourScore}`;
+    }
+    body.appendChild(yourScoreView);
+
+    const actions = document.createElement("div");
+    content.appendChild(actions);
+
+    if (yourScore !== undefined) {
+      const restartButton = document.createElement("button");
+      restartButton.className = "scoreboard-restart";
+      restartButton.textContent = "Новая игра";
+      actions.appendChild(restartButton);
+    }
+
+    const closeButton = document.createElement("button");
+    closeButton.className = "scoreboard-close";
+    closeButton.textContent = "Закрыть";
+    actions.appendChild(closeButton);
+
+    scoreboardModal.replaceChildren(modal);
+    modal.addEventListener("mousedown", (e) => {
       const classes = e.target.classList;
       if (
         classes.contains("scoreboard-modal") ||
@@ -324,7 +358,7 @@ const useGameMaster = () => {
   };
 
   const reset = () => {
-    rootElement.innerHTML = "";
+    rootElement.replaceChildren();
     solvedIds = [];
     tiles = [];
     score = useScore(maxScore);
@@ -361,37 +395,61 @@ const useGameMaster = () => {
 let gm;
 
 (() => {
-  document.body.innerHTML = `
-    <div class="game-container">
-        <header>
-            <div>
-                <div>
-                    <button id="new-game">Новая игра</button>
-                    <button id="scoreboard-trigger">Таблица лидеров</button>
-                </div>
-            </div>
-            <div>
-                <div>
-                    <div>Шагов:</div>
-                    <div id="step-view"></div>
-                </div>
-                <div>
-                    <div>Счёт</div>                    
-                    <div id="score-view"></div>
-                </div>
-            </div>
-        </header>
-        <div id="game-box"></div>
-        <div id="scoreboard-modal"></div>
-    </div>
-  `;
+  const gameContainer = document.createElement("div");
+  gameContainer.className = "game-container";
+  document.body.appendChild(gameContainer);
 
-  rootElement = document.querySelector(`#game-box`);
-  newGameTrigger = document.querySelector("#new-game");
-  scoreboardTrigger = document.querySelector("#scoreboard-trigger");
-  stepCounterContainer = document.querySelector("#step-view");
-  scoreContainer = document.querySelector("#score-view");
-  scoreboardModal = document.querySelector("#scoreboard-modal");
+  const header = document.createElement("header");
+  gameContainer.appendChild(header);
+
+  const controlsOuter = document.createElement("div");
+  header.appendChild(controlsOuter);
+
+  const controls = document.createElement("div");
+  controlsOuter.appendChild(controls);
+
+  newGameTrigger = document.createElement("button");
+  newGameTrigger.id = "new-game";
+  newGameTrigger.textContent = "Новая игра";
+  controls.appendChild(newGameTrigger);
+
+  scoreboardTrigger = document.createElement("button");
+  scoreboardTrigger.id = "scoreboard-trigger";
+  scoreboardTrigger.textContent = "Таблица лидеров";
+  controls.appendChild(scoreboardTrigger);
+
+  const stats = document.createElement("div");
+  header.appendChild(stats);
+
+  const stepsBlock = document.createElement("div");
+  stats.appendChild(stepsBlock);
+
+  const stepsLabel = document.createElement("div");
+  stepsLabel.textContent = "Шагов:";
+  stepsBlock.appendChild(stepsLabel);
+
+  stepCounterContainer = document.createElement("div");
+  stepCounterContainer.id = "step-view";
+  stepsBlock.appendChild(stepCounterContainer);
+
+  const scoreBlock = document.createElement("div");
+  stats.appendChild(scoreBlock);
+
+  const scoreLabel = document.createElement("div");
+  scoreLabel.textContent = "Счёт";
+  scoreBlock.appendChild(scoreLabel);
+
+  scoreContainer = document.createElement("div");
+  scoreContainer.id = "score-view";
+  scoreBlock.appendChild(scoreContainer);
+
+  rootElement = document.createElement("div");
+  rootElement.id = "game-box";
+  gameContainer.appendChild(rootElement);
+
+  scoreboardModal = document.createElement("div");
+  scoreboardModal.id = "scoreboard-modal";
+  gameContainer.appendChild(scoreboardModal);
 
   gm = useGameMaster();
   gm.startGame();
