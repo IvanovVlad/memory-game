@@ -179,23 +179,28 @@ const useScoreboard = (maxCount) => {
 
     const xButton = document.createElement("button");
     xButton.className = "scoreboard-x";
+    xButton.setAttribute("aria-label", "Закрыть");
     content.appendChild(xButton);
 
     const body = document.createElement("div");
+    body.className = "scoreboard-body";
     content.appendChild(body);
 
     const scoresBlock = document.createElement("div");
     body.appendChild(scoresBlock);
 
-    const title = document.createElement("div");
+    const title = document.createElement("h2");
+    title.className = "scoreboard-title";
     title.textContent = "Таблица результатов";
     scoresBlock.appendChild(title);
 
     const scoresView = document.createElement("div");
+    scoresView.className = "scoreboard-list";
     scoresBlock.appendChild(scoresView);
 
     if (scores.length) {
       const table = document.createElement("table");
+      table.className = "scoreboard-table";
       const thead = document.createElement("thead");
       const headRow = document.createElement("tr");
       for (const text of ["Место", "Счёт", "Дата"]) {
@@ -209,7 +214,7 @@ const useScoreboard = (maxCount) => {
       const tbody = document.createElement("tbody");
       scores.forEach((s, i) => {
         const row = document.createElement("tr");
-        for (const text of [i + 1, s.steps, s.date]) {
+        for (const text of [i + 1, s.steps, new Date(s.date).toLocaleString("ru-RU")]) {
           const td = document.createElement("td");
           td.textContent = text;
           row.appendChild(td);
@@ -219,27 +224,30 @@ const useScoreboard = (maxCount) => {
       table.appendChild(tbody);
       scoresView.appendChild(table);
     } else {
+      scoresView.classList.add("scoreboard-empty");
       scoresView.textContent = "Нет попыток";
     }
 
     const yourScoreView = document.createElement("div");
+    yourScoreView.className = "scoreboard-yours";
     if (yourScore !== undefined) {
       yourScoreView.textContent = `Ваш счёт: ${yourScore}`;
     }
     body.appendChild(yourScoreView);
 
     const actions = document.createElement("div");
+    actions.className = "scoreboard-actions";
     content.appendChild(actions);
 
     if (yourScore !== undefined) {
       const restartButton = document.createElement("button");
-      restartButton.className = "scoreboard-restart";
+      restartButton.className = "scoreboard-restart btn btn-primary";
       restartButton.textContent = "Новая игра";
       actions.appendChild(restartButton);
     }
 
     const closeButton = document.createElement("button");
-    closeButton.className = "scoreboard-close";
+    closeButton.className = "scoreboard-close btn btn-secondary";
     closeButton.textContent = "Закрыть";
     actions.appendChild(closeButton);
 
@@ -400,47 +408,64 @@ let gm;
   document.body.appendChild(gameContainer);
 
   const header = document.createElement("header");
+  header.className = "game-header";
   gameContainer.appendChild(header);
 
   const controlsOuter = document.createElement("div");
+  controlsOuter.className = "game-intro";
   header.appendChild(controlsOuter);
 
+  const heading = document.createElement("h1");
+  heading.className = "game-title";
+  heading.textContent = "Найди пару";
+  controlsOuter.appendChild(heading);
+
   const controls = document.createElement("div");
+  controls.className = "game-controls";
   controlsOuter.appendChild(controls);
 
   newGameTrigger = document.createElement("button");
   newGameTrigger.id = "new-game";
+  newGameTrigger.className = "btn btn-primary";
   newGameTrigger.textContent = "Новая игра";
   controls.appendChild(newGameTrigger);
 
   scoreboardTrigger = document.createElement("button");
   scoreboardTrigger.id = "scoreboard-trigger";
+  scoreboardTrigger.className = "btn btn-secondary";
   scoreboardTrigger.textContent = "Таблица лидеров";
   controls.appendChild(scoreboardTrigger);
 
   const stats = document.createElement("div");
+  stats.className = "game-stats";
   header.appendChild(stats);
 
   const stepsBlock = document.createElement("div");
+  stepsBlock.className = "stat";
   stats.appendChild(stepsBlock);
 
   const stepsLabel = document.createElement("div");
-  stepsLabel.textContent = "Шагов:";
+  stepsLabel.className = "stat-label";
+  stepsLabel.textContent = "Шагов";
   stepsBlock.appendChild(stepsLabel);
 
   stepCounterContainer = document.createElement("div");
   stepCounterContainer.id = "step-view";
+  stepCounterContainer.className = "stat-value";
   stepsBlock.appendChild(stepCounterContainer);
 
   const scoreBlock = document.createElement("div");
+  scoreBlock.className = "stat";
   stats.appendChild(scoreBlock);
 
   const scoreLabel = document.createElement("div");
+  scoreLabel.className = "stat-label";
   scoreLabel.textContent = "Счёт";
   scoreBlock.appendChild(scoreLabel);
 
   scoreContainer = document.createElement("div");
   scoreContainer.id = "score-view";
+  scoreContainer.className = "stat-value";
   scoreBlock.appendChild(scoreContainer);
 
   rootElement = document.createElement("div");
