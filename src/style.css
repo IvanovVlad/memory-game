@@ -1,0 +1,358 @@
+@import "../public/font/index.css";
+
+/* Palette sampled from preset_cats.jpg: studio backdrop, frame seams, fur and eyes */
+:root {
+  --paper: #ececec;
+  --studio: #d0d0d0;
+  --seam: #f7f7f7;
+  --card-back: #a9a9a9;
+  --stone: #8a8a8a;
+  --graphite: #5c5c5c;
+  --ink: #1f1f1f;
+  --eye: #d68a1c;
+  --miss: #b4483c;
+
+  --board-width: 648px;
+  --radius-tile: 14px;
+  --radius-ui: 10px;
+}
+
+* {
+  box-sizing: border-box;
+  scroll-behavior: smooth;
+  transition:
+    background-color linear 0.2s,
+    border-color linear 0.2s;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: Inter, sans-serif;
+  color: var(--ink);
+  background: var(--paper);
+}
+
+button,
+button * {
+  font-family: Inter, sans-serif;
+}
+
+:focus-visible {
+  outline: 3px solid var(--eye);
+  outline-offset: 3px;
+}
+
+/* Layout */
+
+.game-container {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  align-items: center;
+  max-width: 1024px;
+  margin: 0 auto;
+  padding: 64px 16px;
+}
+
+.game-header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px 32px;
+  align-items: flex-end;
+  justify-content: space-between;
+  width: 100%;
+  max-width: var(--board-width);
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--studio);
+}
+
+.game-title {
+  margin: 0 0 16px;
+  font-size: 2.5rem;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.035em;
+}
+
+.game-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.game-stats {
+  display: flex;
+  gap: 28px;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.stat-label {
+  font-size: 0.8125rem;
+  color: var(--graphite);
+}
+
+.stat-value {
+  font-size: 1.75rem;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Buttons */
+
+.btn {
+  padding: 10px 18px;
+  border: 1px solid var(--ink);
+  border-radius: var(--radius-ui);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  line-height: 1.2;
+  cursor: pointer;
+}
+
+.btn-primary {
+  color: var(--seam);
+  background: var(--ink);
+}
+
+.btn-primary:hover {
+  background: var(--graphite);
+  border-color: var(--graphite);
+}
+
+.btn-secondary {
+  color: var(--ink);
+  background: transparent;
+}
+
+.btn-secondary:hover {
+  background: var(--studio);
+}
+
+/* Board */
+
+#game-box {
+  width: fit-content;
+  padding: 16px;
+  border-radius: calc(var(--radius-tile) + 8px);
+  background: var(--seam);
+}
+
+.tile {
+  border-radius: var(--radius-tile);
+  padding: 20px;
+  border: 2px solid var(--studio);
+  overflow: hidden;
+}
+
+/* Card back: the same studio grey, a shade deeper, with a seam line like the photo's frames */
+.tile-hidden {
+  background:
+    radial-gradient(circle at 50% 30%, rgb(255 255 255 / 0.22), transparent 65%), var(--card-back) !important;
+  border-color: var(--card-back);
+  box-shadow:
+    inset 0 0 0 6px var(--card-back),
+    inset 0 0 0 7px rgb(255 255 255 / 0.35);
+}
+
+.tile:not([revealed]):hover {
+  cursor: pointer;
+  border-color: var(--graphite);
+}
+
+.tile-correct {
+  border-color: var(--eye);
+  box-shadow: 0 0 0 2px var(--eye);
+}
+
+.tile-incorrect {
+  border-color: var(--miss);
+  box-shadow: 0 0 0 2px var(--miss);
+  animation: tile-miss 0.35s ease-in-out;
+}
+
+@keyframes tile-miss {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-4px);
+  }
+  75% {
+    transform: translateX(4px);
+  }
+}
+
+/* Scoreboard */
+
+.scoreboard-modal {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100lvw;
+  height: 100lvh;
+  background: rgb(31 31 31 / 0.55);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.scoreboard-wrapper {
+  padding: 16px;
+  width: 100%;
+  max-width: 540px;
+}
+
+.scoreboard-content {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  max-height: calc(100lvh - 32px);
+  padding: 28px;
+  border-radius: 20px;
+  color: var(--ink);
+  background: var(--seam);
+}
+
+.scoreboard-body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-height: 0;
+  overflow: auto;
+}
+
+.scoreboard-title {
+  margin: 0 0 16px;
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+}
+
+.scoreboard-empty {
+  padding: 24px 0;
+  color: var(--graphite);
+}
+
+.scoreboard-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+
+.scoreboard-table th {
+  padding: 0 8px 8px;
+  border-bottom: 1px solid var(--studio);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  text-align: left;
+  color: var(--graphite);
+}
+
+.scoreboard-table td {
+  padding: 10px 8px;
+  border-bottom: 1px solid var(--studio);
+}
+
+.scoreboard-table td:nth-child(2) {
+  font-weight: 700;
+}
+
+.scoreboard-table td:last-child {
+  color: var(--graphite);
+}
+
+.scoreboard-table tbody tr:first-child td:first-child {
+  color: var(--eye);
+  font-weight: 700;
+}
+
+.scoreboard-yours:not(:empty) {
+  padding: 12px 16px;
+  border-left: 3px solid var(--eye);
+  border-radius: 4px;
+  font-weight: 600;
+  background: var(--paper);
+}
+
+.scoreboard-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.scoreboard-x {
+  position: absolute;
+  right: -48px;
+  top: -48px;
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 50%;
+  color: var(--ink);
+  background: var(--seam);
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+
+  &::before {
+    content: "×";
+  }
+
+  &:hover {
+    background: var(--studio);
+  }
+
+  @media (max-width: 640px) {
+    display: none;
+  }
+}
+
+/* Tile offsets are pixel-based, so shrink the whole board instead of reflowing it */
+@media (max-width: 720px) {
+  .game-container {
+    padding-top: 32px;
+  }
+
+  #game-box {
+    zoom: 0.78;
+  }
+}
+
+@media (max-width: 560px) {
+  .game-title {
+    font-size: 2rem;
+  }
+
+  #game-box {
+    padding: 10px;
+    zoom: 0.5;
+  }
+}
+
+@media (max-width: 360px) {
+  #game-box {
+    zoom: 0.46;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    scroll-behavior: auto;
+    transition: none;
+  }
+
+  .tile-incorrect {
+    animation: none;
+  }
+}
