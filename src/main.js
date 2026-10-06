@@ -8,7 +8,18 @@ let rootElement,
   scoreboardTrigger,
   scoreboardModal;
 
-const sleep = (time) => new Promise((r) => setTimeout(r, time));
+const sleep = (time) => {
+  let id, resolve;
+  const promise = new Promise((r) => {
+    resolve = r;
+    id = setTimeout(r, time);
+  });
+  const clear = () => {
+    resolve();
+    clearTimeout(id);
+  };
+  return { clear, promise };
+};
 
 const useAssetImage = () => {
   const imgSrc = "/memory-game/preset_cats.jpg";
@@ -145,7 +156,7 @@ const useScoreboard = (maxCount) => {
   const obtain = () => JSON.parse(window.localStorage.getItem(persistKey) || "[]");
 
   const persist = (scores) => {
-    scores.sort((a, b) => Number(a.steps) - Number(b.steps)).slice(0, maxCount);
+    scores = scores.sort((a, b) => Number(a.steps) - Number(b.steps)).slice(0, maxCount);
     window.localStorage.setItem(persistKey, JSON.stringify(scores));
   };
 
@@ -282,6 +293,8 @@ const useGameMaster = () => {
   let solvedIds = [];
   let tmpRevealElement;
   let idle = false;
+  let cleared = false;
+  let clearAwait;
 
   const updateTileHash = (tile) => {
     tile.setAttribute("hash", crypto.randomUUID());
@@ -341,7 +354,19 @@ const useGameMaster = () => {
     tmpRevealElement.classList.add(tileIncorrectCss);
     tile.classList.add(tileIncorrectCss);
 
-    await sleep(1000);
+    const s = sleep(1200);
+    clearAwait = () => {
+      cleared = true;
+      s.clear();
+    }
+    await s.promise;
+    clearAwait = undefined;
+
+    if (cleared) {
+      cleared = false;
+      idle = false;
+      return;
+    }
 
     tmpRevealElement.classList.remove(tileIncorrectCss);
     tile.classList.remove(tileIncorrectCss);
@@ -371,6 +396,14 @@ const useGameMaster = () => {
     tiles = [];
     score = useScore(maxScore);
     stepCounter = useStepCounter();
+    tmpRevealElement = undefined;
+    cleared = false;
+    idle = false;
+
+    if (clearAwait) {
+      clearAwait();
+      clearAwait = undefined;
+    }
   };
 
   const startGame = () => {
